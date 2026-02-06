@@ -1,0 +1,144 @@
+Q1. business context
+      .company type is online learning platform
+
+      . department is student Experience and Academic Success
+
+      Industry is E-Learnig
+
+
+    Data Challenge we've noticied that many students start their learning journey with hight energy but lost momentume after the first week
+
+
+    Expected Outcome The goal is to create a student Success Map that identifies exactly where learner get stuck or discouraged. By Understanding these patterns, we can providepersonalized study remainder and extra learning support at the exact moment a student feels like giving up, helping more students reach their goal of earning a certificate
+
+
+
+Q2  Example of e-learning scenario
+
+   RANK() it helps learners trust they are picking the best courses
+
+   SUM() OVER() show learners their streak and sense of accomplishment
+
+   LAG() LEAD() prevents discouragement by showing growth compare to privous weeks
+   AVG() OVER()  show bigger picture of learner growth overtime.
+   NTILE it's group learners to identify high, medium, and low engagement levels 
+
+
+Q3 Tables (at least 3)
+
+**Learners (students/users)**
+- learner_id (PK)
+- first_name
+- last_name
+- email
+- region
+
+**Courses**
+- course_id (PK)
+- course_name
+- category
+- level
+
+**Enrollments / Progress (join table tracking learner activity)**
+- enrollment_id (PK)
+- learner_id (FK → Learners)
+- course_id (FK → Courses)
+- completion_percentage
+- week_number
+- score 
+
+
+
+
+Q4 Part A — SQL JOINs Implementation
+
+   -- List all students with their courses
+SELECT s.first_name, s.last_name, c.course_name, sc.enrollment_status
+FROM student_courses sc
+INNER JOIN students s ON sc.student_id = s.id
+INNER JOIN courses c ON sc.course_id = c.id;
+/home/lionson/Pictures/Screenshots/Screenshot from 2026-02-06 11-46-42.png
+
+
+
+-- Students who never enrolled in any course
+SELECT s.first_name, s.last_name, sc.course_id
+FROM students s
+LEFT JOIN student_courses sc ON s.id = sc.student_id
+WHERE sc.course_id IS NULL;
+/home/lionson/Pictures/Screenshots/Screenshot from 2026-02-06 11-47-07.png
+
+
+
+-- Courses without any students
+SELECT c.course_name, s.first_name, s.last_name
+FROM courses c
+LEFT JOIN student_courses sc ON c.id = sc.course_id
+LEFT JOIN students s ON sc.student_id = s.id
+WHERE sc.student_id IS NULL;
+/home/lionson/Pictures/Screenshots/Screenshot from 2026-02-06 11-47-27.png
+
+
+-- All students and all courses, even if no enrollment
+SELECT s.first_name, s.last_name, c.course_name
+FROM students s
+FULL OUTER JOIN student_courses sc ON s.id = sc.student_id
+FULL OUTER JOIN courses c ON sc.course_id = c.id;
+/home/lionson/Pictures/Screenshots/Screenshot from 2026-02-06 11-47-47.png
+
+
+
+-- Students in the same course
+SELECT s1.first_name AS student1, s2.first_name AS student2, c.course_name
+FROM student_courses sc1
+JOIN student_courses sc2 ON sc1.course_id = sc2.course_id AND sc1.student_id <> sc2.student_id
+JOIN students s1 ON sc1.student_id = s1.id
+JOIN students s2 ON sc2.student_id = s2.id
+JOIN courses c ON sc1.course_id = c.id;
+/home/lionson/Pictures/Screenshots/Screenshot from 2026-02-06 11-48-05.png
+
+
+
+
+
+Q4 Part B — SQL Aggregations Implementation
+
+
+
+    
+
+
+    -- Rank students by number of courses enrolled
+SELECT s.first_name, s.last_name, COUNT(sc.course_id) AS total_courses,
+       RANK() OVER (ORDER BY COUNT(sc.course_id) DESC) AS course_rank
+FROM students s
+LEFT JOIN student_courses sc ON s.id = sc.student_id
+GROUP BY s.id
+ORDER BY course_rank;
+/home/lionson/Pictures/Screenshots/Screenshot from 2026-02-06 11-53-24.png
+
+
+
+
+
+-- Running total of students enrolled per course
+SELECT c.course_name, s.first_name, s.last_name,
+       COUNT(sc.student_id) OVER (PARTITION BY c.id ORDER BY s.id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_total
+FROM courses c
+LEFT JOIN student_courses sc ON c.id = sc.course_id
+LEFT JOIN students s ON sc.student_id = s.id
+ORDER BY c.course_name, s.id;
+/home/lionson/Pictures/Screenshots/Screenshot from 2026-02-06 11-54-21.png
+
+
+
+
+
+-- Divide students into quartiles based on total courses enrolled
+SELECT s.first_name, s.last_name, COUNT(sc.course_id) AS total_courses,
+       NTILE(4) OVER (ORDER BY COUNT(sc.course_id) DESC) AS quartile
+FROM students s
+LEFT JOIN student_courses sc ON s.id = sc.student_id
+GROUP BY s.id
+ORDER BY quartile;
+/home/lionson/Pictures/Screenshots/Screenshot from 2026-02-06 11-55-14.png
