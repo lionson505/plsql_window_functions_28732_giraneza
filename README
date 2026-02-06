@@ -57,7 +57,7 @@ SELECT s.first_name, s.last_name, c.course_name, sc.enrollment_status
 FROM student_courses sc
 INNER JOIN students s ON sc.student_id = s.id
 INNER JOIN courses c ON sc.course_id = c.id;
-/home/lionson/Pictures/Screenshots/Screenshot from 2026-02-06 11-46-42.png
+![Students with Courses](images/joins_result1.png)
 
 
 
@@ -66,7 +66,7 @@ SELECT s.first_name, s.last_name, sc.course_id
 FROM students s
 LEFT JOIN student_courses sc ON s.id = sc.student_id
 WHERE sc.course_id IS NULL;
-/home/lionson/Pictures/Screenshots/Screenshot from 2026-02-06 11-47-07.png
+![Students Never Enrolled](images/joins_result2.png)
 
 
 
@@ -76,7 +76,7 @@ FROM courses c
 LEFT JOIN student_courses sc ON c.id = sc.course_id
 LEFT JOIN students s ON sc.student_id = s.id
 WHERE sc.student_id IS NULL;
-/home/lionson/Pictures/Screenshots/Screenshot from 2026-02-06 11-47-27.png
+![Courses Without Students](images/joins_result3.png)
 
 
 -- All students and all courses, even if no enrollment
@@ -84,7 +84,7 @@ SELECT s.first_name, s.last_name, c.course_name
 FROM students s
 FULL OUTER JOIN student_courses sc ON s.id = sc.student_id
 FULL OUTER JOIN courses c ON sc.course_id = c.id;
-/home/lionson/Pictures/Screenshots/Screenshot from 2026-02-06 11-47-47.png
+![All Students and Courses](images/joins_result4.png)
 
 
 
@@ -95,7 +95,7 @@ JOIN student_courses sc2 ON sc1.course_id = sc2.course_id AND sc1.student_id <> 
 JOIN students s1 ON sc1.student_id = s1.id
 JOIN students s2 ON sc2.student_id = s2.id
 JOIN courses c ON sc1.course_id = c.id;
-/home/lionson/Pictures/Screenshots/Screenshot from 2026-02-06 11-48-05.png
+![Students in Same Course](images/joins_result5.png)
 
 
 
@@ -115,8 +115,7 @@ FROM students s
 LEFT JOIN student_courses sc ON s.id = sc.student_id
 GROUP BY s.id
 ORDER BY course_rank;
-/home/lionson/Pictures/Screenshots/Screenshot from 2026-02-06 11-53-24.png
-
+![Rank Students by Courses](images/aggregations_result1.png)
 
 
 
@@ -128,7 +127,7 @@ FROM courses c
 LEFT JOIN student_courses sc ON c.id = sc.course_id
 LEFT JOIN students s ON sc.student_id = s.id
 ORDER BY c.course_name, s.id;
-/home/lionson/Pictures/Screenshots/Screenshot from 2026-02-06 11-54-21.png
+![Running Total Enrollment](images/aggregations_result2.png)
 
 
 
@@ -141,4 +140,4 @@ FROM students s
 LEFT JOIN student_courses sc ON s.id = sc.student_id
 GROUP BY s.id
 ORDER BY quartile;
-/home/lionson/Pictures/Screenshots/Screenshot from 2026-02-06 11-55-14.png
+![Student Quartiles](images/aggregations_result3.png)
